@@ -2,3 +2,24 @@ spring:
   application:
     name: micropay-security
 
+  datasource:
+    url: jdbc:postgresql://localhost:5450/security_db
+    username: user
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  liquibase:
+    enabled: false
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+server:
+  port: 8080
