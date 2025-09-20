@@ -1,8 +1,8 @@
 package com.security.config;
 
 import com.security.model.CustomUserDetails;
-import com.security.service.CustomUserDetailsService;
-import com.security.service.PinService;
+import com.security.service.security.CustomUserDetailsService;
+import com.security.service.security.PinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
