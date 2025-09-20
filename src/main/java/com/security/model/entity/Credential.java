@@ -29,6 +29,39 @@ public class Credential {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    public Credential() {
+    }
+    public Credential(Builder builder) {
+        this.user = builder.user;
+        this.pinHash = builder.pinHash;
+        this.biometricEnabled = builder.biometricEnabled;
+    }
+
+    public static class Builder {
+        private User user;
+        private String pinHash;
+        private boolean biometricEnabled;
+
+        public Builder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        public Builder pinHash(String pinHash) {
+            this.pinHash = pinHash;
+            return this;
+        }
+
+        public Builder withBiometricEnabled(boolean biometricEnabled) {
+            this.biometricEnabled = biometricEnabled;
+            return this;
+        }
+
+        public Credential build() {
+            return new Credential(this);
+        }
+    }
+
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();

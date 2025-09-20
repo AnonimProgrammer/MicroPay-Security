@@ -1,4 +1,4 @@
-package com.security.service;
+package com.security.service.security;
 
 import com.security.model.RoleType;
 import io.jsonwebtoken.Jwts;

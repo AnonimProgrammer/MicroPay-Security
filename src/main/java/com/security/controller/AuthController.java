@@ -1,6 +1,5 @@
 package com.security.controller;
 
-import com.security.dto.request.AuthRequest;
 import com.security.dto.request.RegisterRequest;
 import com.security.dto.response.AuthResponse;
 import com.security.service.UserDataAccessService;
