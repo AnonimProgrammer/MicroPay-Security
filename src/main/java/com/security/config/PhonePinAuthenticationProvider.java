@@ -1,10 +1,9 @@
 package com.security.config;
 
 import com.security.model.CustomUserDetails;
-import com.security.service.security.CustomUserDetailsService;
-import com.security.service.security.PinService;
+import com.security.service.security.PinManagementService;
+import com.security.service.security.UserAuthenticationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
@@ -15,8 +14,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PhonePinAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-    private final CustomUserDetailsService userDetailsService;
-    private final PinService pinService;
+    private final UserAuthenticationService userDetailsService;
+    private final PinManagementService pinManagementService;
 
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,
@@ -25,11 +24,7 @@ public class PhonePinAuthenticationProvider extends AbstractUserDetailsAuthentic
         String rawPin = authentication.getCredentials().toString();
         String storedHash = ((CustomUserDetails) userDetails).getPassword();
 
-        System.out.println("Raw PIN: " + rawPin);
-
-        if (!pinService.verifyPin(rawPin, storedHash)) {
-            throw new BadCredentialsException("Invalid PIN");
-        }
+        pinManagementService.checkPinMatching(rawPin, storedHash);
     }
 
     @Override

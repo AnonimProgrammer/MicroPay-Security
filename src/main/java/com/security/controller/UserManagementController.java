@@ -1,7 +1,7 @@
 package com.security.controller;
 
 import com.security.model.UserModel;
-import com.security.service.UserDataAccessService;
+import com.security.service.UserManagementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserManagementController {
 
-    private final UserDataAccessService userDataAccessService;
+    private final UserManagementService userDataAccessService;
 
     @GetMapping
     public ResponseEntity<UserModel> getUserData(@RequestHeader ("X-User-Id") UUID userId) {

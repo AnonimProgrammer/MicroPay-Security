@@ -1,7 +1,7 @@
 package com.security.config;
 
 import com.security.config.filter.PhonePinAuthenticationFilter;
-import com.security.service.UserDataAccessService;
+import com.security.service.security.UserAuthenticationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,9 +19,9 @@ public class SecurityConfiguration {
     @Bean
     public PhonePinAuthenticationFilter phonePinAuthenticationFilter(
             AuthenticationManager authManager,
-            UserDataAccessService userDataAccessService
+            UserAuthenticationService userAuthenticationService
     ) {
-        return new PhonePinAuthenticationFilter(authManager, userDataAccessService);
+        return new PhonePinAuthenticationFilter(authManager, userAuthenticationService);
     }
 
     @Bean

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.security.dto.request.AuthRequest;
 import com.security.dto.response.AuthResponse;
 import com.security.model.CustomUserDetails;
-import com.security.service.UserDataAccessService;
+import com.security.service.security.UserAuthenticationService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,16 +39,16 @@ public class PhonePinAuthenticationFilter extends AbstractAuthenticationProcessi
 
     private boolean postOnly = true;
 
-    private final UserDataAccessService userDataAccessService;
+    private final UserAuthenticationService userAuthenticationService;
 
-    public PhonePinAuthenticationFilter(UserDataAccessService userDataAccessService) {
+    public PhonePinAuthenticationFilter(UserAuthenticationService userAuthenticationService) {
         super(PATH_REQUEST_MATCHER);
-        this.userDataAccessService = userDataAccessService;
+        this.userAuthenticationService = userAuthenticationService;
     }
 
-    public PhonePinAuthenticationFilter(AuthenticationManager authenticationManager, UserDataAccessService userDataAccessService) {
+    public PhonePinAuthenticationFilter(AuthenticationManager authenticationManager, UserAuthenticationService userAuthenticationService) {
         super(PATH_REQUEST_MATCHER, authenticationManager);
-        this.userDataAccessService = userDataAccessService;
+        this.userAuthenticationService = userAuthenticationService;
     }
 
     @Override
@@ -86,7 +86,7 @@ public class PhonePinAuthenticationFilter extends AbstractAuthenticationProcessi
                                             Authentication authResult) throws IOException {
         CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
 
-        AuthResponse authResponse = userDataAccessService.generateTokens(userDetails.getUser());
+        AuthResponse authResponse = userAuthenticationService.generateTokens(userDetails.getUser());
 
         response.setContentType("application/json");
         new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
