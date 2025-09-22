@@ -62,10 +62,10 @@ public class PhonePinAuthenticationFilter extends AbstractAuthenticationProcessi
             ObjectMapper mapper = new ObjectMapper();
             AuthRequest authRequest = mapper.readValue(request.getInputStream(), AuthRequest.class);
 
-            String phoneNumber = authRequest.getPhoneNumber();
+            String phoneNumber = authRequest.phoneNumber();
             phoneNumber = (phoneNumber == null) ? "" : phoneNumber;
 
-            String pin = authRequest.getPin();
+            String pin = authRequest.pin();
             pin = (pin == null) ? "" : pin;
 
             UsernamePasswordAuthenticationToken authToken =

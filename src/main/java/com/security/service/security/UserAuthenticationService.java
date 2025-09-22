@@ -34,15 +34,15 @@ public class UserAuthenticationService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("Role not found."));
 
         User user = new User.Builder()
-                .phoneNumber(registerRequest.getPhoneNumber())
-                .fullName(registerRequest.getFullName())
-                .email(registerRequest.getEmail())
+                .phoneNumber(registerRequest.phoneNumber())
+                .fullName(registerRequest.fullName())
+                .email(registerRequest.email())
                 .role(role)
                 .status(UserStatus.ACTIVE)
                 .build();
         userRepository.save(user);
 
-        String pinHash = pinManagementService.hashPin(registerRequest.getPin());
+        String pinHash = pinManagementService.hashPin(registerRequest.pin());
 
         Credential credential = new Credential.Builder()
                 .user(user)
