@@ -1,5 +1,6 @@
 package com.security.service;
 
+import com.security.dto.request.UpdateUserRequest;
 import com.security.mapper.Mapper;
 import com.security.model.UserModel;
 import com.security.model.entity.User;
@@ -24,13 +25,16 @@ public class UserManagementService {
     }
 
     @Transactional
-    public void updateUserData(UUID userId, UserModel userModel) {
+    public void updateUserData(UUID userId, UpdateUserRequest updateUserRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found."));
 
-        user.setFullName(userModel.getFullName());
-        user.setEmail(userModel.getEmail());
-
+        if (updateUserRequest.fullName() != null) {
+            user.setFullName(updateUserRequest.fullName());
+        }
+        if (updateUserRequest.email() != null) {
+            user.setEmail(updateUserRequest.email());
+        }
         userRepository.save(user);
     }
 

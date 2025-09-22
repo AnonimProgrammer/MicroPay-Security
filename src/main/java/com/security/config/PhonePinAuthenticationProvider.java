@@ -1,6 +1,5 @@
 package com.security.config;
 
-import com.security.model.CustomUserDetails;
 import com.security.service.security.PinManagementService;
 import com.security.service.security.UserAuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,7 @@ public class PhonePinAuthenticationProvider extends AbstractUserDetailsAuthentic
                                                   UsernamePasswordAuthenticationToken authentication)
             throws AuthenticationException {
         String rawPin = authentication.getCredentials().toString();
-        String storedHash = ((CustomUserDetails) userDetails).getPassword();
+        String storedHash = userDetails.getPassword();
 
         pinManagementService.checkPinMatching(rawPin, storedHash);
     }
