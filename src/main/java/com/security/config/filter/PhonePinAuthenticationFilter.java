@@ -86,7 +86,7 @@ public class PhonePinAuthenticationFilter extends AbstractAuthenticationProcessi
                                             Authentication authResult) throws IOException {
         CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
 
-        AuthResponse authResponse = userAuthenticationService.generateTokens(userDetails.getUser());
+        AuthResponse authResponse = userAuthenticationService.generateTokens(userDetails.user());
 
         response.setContentType("application/json");
         new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
