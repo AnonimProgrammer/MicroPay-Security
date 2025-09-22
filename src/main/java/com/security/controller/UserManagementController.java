@@ -1,5 +1,6 @@
 package com.security.controller;
 
+import com.security.dto.request.UpdateUserRequest;
 import com.security.model.UserModel;
 import com.security.service.UserManagementService;
 import jakarta.validation.Valid;
@@ -25,8 +26,8 @@ public class UserManagementController {
     @PutMapping
     public void updateUserData(
             @RequestHeader ("X-User-Id") UUID userId,
-            @Valid @RequestBody UserModel user
+            @Valid @RequestBody UpdateUserRequest updateUserRequest
     ) {
-        userDataAccessService.updateUserData(userId, user);
+        userDataAccessService.updateUserData(userId, updateUserRequest);
     }
 }

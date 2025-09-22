@@ -1,11 +1,14 @@
 package com.security.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 public record VerifyPinRequest(
-        @NotBlank(message = "PIN can not be blank.")
-        @Size(message = "PIN must consist of 6 digits.", min = 6, max = 6)
+        @NotNull(message = "PIN is required.")
+        @Pattern(
+                regexp = "\\d{6}",
+                message = "PIN must consist of exactly 6 digits."
+        )
         String pin
 ) {}
 

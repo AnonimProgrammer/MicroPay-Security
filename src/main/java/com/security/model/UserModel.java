@@ -1,7 +1,5 @@
 package com.security.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Null;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -9,16 +7,11 @@ import java.time.LocalDateTime;
 @Data
 public class UserModel {
 
-    @Null(message = "Should be null!")
     private String phoneNumber;
-    @NotBlank(message = "Full name can not be blank!")
     private String fullName;
     private String email;
-    @Null(message = "Should be null!")
     private UserStatus status;
-    @Null(message = "Should be null!")
     private LocalDateTime createdAt;
-    @Null(message = "Should be null!")
     private LocalDateTime updatedAt;
 
     public UserModel(Builder builder) {
