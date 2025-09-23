@@ -1,8 +1,8 @@
-package com.security.controller;
+package com.micropay.security.controller;
 
-import com.security.dto.request.UpdateUserRequest;
-import com.security.model.UserModel;
-import com.security.service.UserManagementService;
+import com.micropay.security.dto.request.UpdateUserRequest;
+import com.micropay.security.model.UserModel;
+import com.micropay.security.service.UserManagementService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +24,11 @@ public class UserManagementController {
     }
 
     @PutMapping
-    public void updateUserData(
+    public ResponseEntity<UserModel> updateUserData(
             @RequestHeader ("X-User-Id") UUID userId,
             @Valid @RequestBody UpdateUserRequest updateUserRequest
     ) {
-        userDataAccessService.updateUserData(userId, updateUserRequest);
+        UserModel user = userDataAccessService.updateUserData(userId, updateUserRequest);
+        return ResponseEntity.ok(user);
     }
 }
