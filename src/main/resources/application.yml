@@ -23,3 +23,9 @@ spring:
 
 server:
   port: 8150
+
+security:
+  jwt:
+    secret: ed289801ff08db5d4fd8d71cd29ff018bc333b3ab1b9c1d0a261257ed28ae9b3
+    access-token-validity: 900000   # 15 minutes
+    refresh-token-validity: 604800000 # 7 days
