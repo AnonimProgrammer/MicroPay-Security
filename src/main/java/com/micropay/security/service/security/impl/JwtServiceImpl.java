@@ -1,33 +1,34 @@
-package com.security.service.security;
+package com.micropay.security.service.security.impl;
 
-import com.security.model.RoleType;
+import com.micropay.security.model.RoleType;
+import com.micropay.security.service.security.JwtService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 @Service
-public class JwtService {
+public class JwtServiceImpl implements JwtService {
 
-    private String secretKey;
-    private final long accessTokenValidity = 15 * 60 * 1000;
-    private final long refreshTokenValidity = 7 * 24 * 60 * 60 * 1000;
+    private final String secretKey;
+    private final long accessTokenValidity;
+    private final long refreshTokenValidity;
 
-    public JwtService() {
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGen.generateKey();
-            secretKey = Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error generating secret key", e);
-        }
+    public JwtServiceImpl(
+            @Value("${security.jwt.secret}") String secretKey,
+            @Value("${security.jwt.access-token-validity}") long accessTokenValidity,
+            @Value("${security.jwt.refresh-token-validity}") long refreshTokenValidity
+    ) {
+        this.secretKey = secretKey;
+        this.accessTokenValidity = accessTokenValidity;
+        this.refreshTokenValidity = refreshTokenValidity;
     }
 
+    @Override
     public String generateAccessToken(UUID userId, RoleType role) {
         return Jwts.builder()
                 .subject(userId.toString())
@@ -38,6 +39,7 @@ public class JwtService {
                 .compact();
     }
 
+    @Override
     public String generateRefreshToken(UUID userId) {
         return Jwts.builder()
                 .subject(userId.toString())
