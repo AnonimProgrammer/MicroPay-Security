@@ -1,26 +1,28 @@
-package com.security.service.security;
+package com.micropay.security.service.security.impl;
 
-import com.security.dto.request.RegisterRequest;
-import com.security.dto.response.AuthResponse;
-import com.security.model.CustomUserDetails;
-import com.security.model.RoleType;
-import com.security.model.UserStatus;
-import com.security.model.entity.Credential;
-import com.security.model.entity.Role;
-import com.security.model.entity.User;
-import com.security.repo.CredentialRepository;
-import com.security.repo.RoleRepository;
-import com.security.repo.UserRepository;
+import com.micropay.security.dto.request.RegisterRequest;
+import com.micropay.security.dto.response.AuthResponse;
+import com.micropay.security.model.CustomUserDetails;
+import com.micropay.security.model.RoleType;
+import com.micropay.security.model.UserStatus;
+import com.micropay.security.model.entity.Credential;
+import com.micropay.security.model.entity.Role;
+import com.micropay.security.model.entity.User;
+import com.micropay.security.repo.CredentialRepository;
+import com.micropay.security.repo.RoleRepository;
+import com.micropay.security.repo.UserRepository;
+import com.micropay.security.service.security.JwtService;
+import com.micropay.security.service.security.PinManagementService;
+import com.micropay.security.service.security.UserAuthenticationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserAuthenticationService implements UserDetailsService {
+public class UserAuthenticationServiceImpl implements UserAuthenticationService {
 
     private final JwtService jwtService;
     private final PinManagementService pinManagementService;
@@ -68,6 +70,10 @@ public class UserAuthenticationService implements UserDetailsService {
 
         Credential credential = credentialRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Credentials not found."));
+
+        if (user.getStatus() != UserStatus.ACTIVE) {
+            throw new RuntimeException("User is not active.");
+        }
 
         return new CustomUserDetails(user, credential.getPinHash());
     }
