@@ -1,19 +1,19 @@
 package com.micropay.security.config;
 
 import com.micropay.security.service.security.PinManagementService;
-import com.micropay.security.service.security.impl.UserAuthenticationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
 public class PhonePinAuthenticationProvider extends AbstractUserDetailsAuthenticationProvider {
 
-    private final UserAuthenticationServiceImpl userDetailsService;
+    private final UserDetailsService userDetailsService;
     private final PinManagementService pinManagementService;
 
     @Override

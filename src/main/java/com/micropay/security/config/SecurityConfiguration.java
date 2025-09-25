@@ -1,7 +1,7 @@
 package com.micropay.security.config;
 
 import com.micropay.security.config.filter.PhonePinAuthenticationFilter;
-import com.micropay.security.service.security.impl.UserAuthenticationServiceImpl;
+import com.micropay.security.service.security.JwtService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,9 +19,9 @@ public class SecurityConfiguration {
     @Bean
     public PhonePinAuthenticationFilter phonePinAuthenticationFilter(
             AuthenticationManager authManager,
-            UserAuthenticationServiceImpl userAuthenticationService
+            JwtService jwtService
     ) {
-        return new PhonePinAuthenticationFilter(authManager, userAuthenticationService);
+        return new PhonePinAuthenticationFilter(authManager, jwtService);
     }
 
     @Bean

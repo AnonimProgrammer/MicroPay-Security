@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.micropay.security.dto.request.AuthRequest;
 import com.micropay.security.dto.response.AuthResponse;
 import com.micropay.security.model.CustomUserDetails;
-import com.micropay.security.service.security.impl.UserAuthenticationServiceImpl;
+import com.micropay.security.service.security.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,16 +39,16 @@ public class PhonePinAuthenticationFilter extends AbstractAuthenticationProcessi
 
     private boolean postOnly = true;
 
-    private final UserAuthenticationServiceImpl userAuthenticationService;
+    private final JwtService jwtService;
 
-    public PhonePinAuthenticationFilter(UserAuthenticationServiceImpl userAuthenticationService) {
+    public PhonePinAuthenticationFilter(JwtService jwtService) {
         super(PATH_REQUEST_MATCHER);
-        this.userAuthenticationService = userAuthenticationService;
+        this.jwtService = jwtService;
     }
 
-    public PhonePinAuthenticationFilter(AuthenticationManager authenticationManager, UserAuthenticationServiceImpl userAuthenticationService) {
+    public PhonePinAuthenticationFilter(AuthenticationManager authenticationManager, JwtService jwtService) {
         super(PATH_REQUEST_MATCHER, authenticationManager);
-        this.userAuthenticationService = userAuthenticationService;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -86,7 +86,7 @@ public class PhonePinAuthenticationFilter extends AbstractAuthenticationProcessi
                                             Authentication authResult) throws IOException {
         CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
 
-        AuthResponse authResponse = userAuthenticationService.generateTokens(userDetails.user());
+        AuthResponse authResponse = jwtService.generateTokens(userDetails.user());
 
         response.setContentType("application/json");
         new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
