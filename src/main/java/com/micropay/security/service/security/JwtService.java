@@ -1,13 +1,10 @@
 package com.micropay.security.service.security;
 
-import com.micropay.security.model.RoleType;
-
-import java.util.UUID;
+import com.micropay.security.dto.response.AuthResponse;
+import com.micropay.security.model.entity.User;
 
 public interface JwtService {
 
-    String generateAccessToken(UUID userId, RoleType role);
-
-    String generateRefreshToken(UUID userId);
+    AuthResponse generateTokens(User user);
 
 }

@@ -1,6 +1,8 @@
 package com.micropay.security.service.security.impl;
 
+import com.micropay.security.dto.response.AuthResponse;
 import com.micropay.security.model.RoleType;
+import com.micropay.security.model.entity.User;
 import com.micropay.security.service.security.JwtService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -29,7 +31,14 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateAccessToken(UUID userId, RoleType role) {
+    public AuthResponse generateTokens(User user) {
+        String accessToken = generateAccessToken(user.getId(), user.getRole().getRole());
+        String refreshToken = generateRefreshToken(user.getId());
+
+        return new AuthResponse(accessToken, refreshToken);
+    }
+
+    private String generateAccessToken(UUID userId, RoleType role) {
         return Jwts.builder()
                 .subject(userId.toString())
                 .claim("role", role.name())
@@ -39,8 +48,7 @@ public class JwtServiceImpl implements JwtService {
                 .compact();
     }
 
-    @Override
-    public String generateRefreshToken(UUID userId) {
+    private String generateRefreshToken(UUID userId) {
         return Jwts.builder()
                 .subject(userId.toString())
                 .issuedAt(new Date())
