@@ -34,8 +34,8 @@ server:
 security:
   jwt:
     secret: ${SECURITY_JWT_SECRET}
-    access-token-validity: 900000   # 15 minutes
-    refresh-token-validity: 604800000 # 7 days
+    access-token-validity: 900000
+    refresh-token-validity: 604800000
 
 management:
   endpoints:
