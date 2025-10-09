@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-add-foreign-keys
+      author: omarismailov
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: users
+            baseColumnNames: role_id
+            constraintName: fk_users_roles
+            referencedTableName: roles
+            referencedColumnNames: id
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+
+        - addForeignKeyConstraint:
+            baseTableName: credentials
+            baseColumnNames: user_id
+            constraintName: fk_credentials_users
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE

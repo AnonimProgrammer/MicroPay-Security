@@ -8,11 +8,4 @@ public class NotActiveUserException extends RuntimeException {
         super("User is not active. UserId: " + userId);
     }
 
-    public NotActiveUserException(String message) {
-        super(message);
-    }
-
-    public NotActiveUserException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

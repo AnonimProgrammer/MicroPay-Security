@@ -2,12 +2,15 @@ package com.micropay.security.model.entity;
 
 import com.micropay.security.model.UserStatus;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Data
+@Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -17,74 +20,37 @@ public class User {
     private UUID id;
 
     @Column(unique = true, nullable = false)
+    @Setter
     private String phoneNumber;
 
     @Column(nullable = false)
+    @Setter
     private String fullName;
 
+    @Setter
     private String email;
 
     @ManyToOne(optional = false)
+    @Setter
     private Role role;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Setter
     private UserStatus status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-    public User(Builder builder) {
-        this.phoneNumber = builder.phoneNumber;
-        this.fullName = builder.fullName;
-        this.email = builder.email;
-        this.role = builder.role;
-        this.status = builder.status;
-    }
-
-    public User() {}
-
-    public static class Builder {
-        private String phoneNumber;
-        private String fullName;
-        private String email;
-        private Role role;
-        private UserStatus status;
-
-        public Builder phoneNumber(String phoneNumber) {
-            this.phoneNumber = phoneNumber;
-            return this;
-        }
-        public Builder fullName(String fullName) {
-            this.fullName = fullName;
-            return this;
-        }
-        public Builder email(String email) {
-            this.email = email;
-            return this;
-        }
-        public Builder role(Role role) {
-            this.role = role;
-            return this;
-        }
-        public Builder status(UserStatus status) {
-            this.status = status;
-            return this;
-        }
-        public User build() {
-            return new User(this);
-        }
-
-    }
 
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
         createdAt = now;
         updatedAt = now;
+        status = UserStatus.ACTIVE;
     }
 
     @PreUpdate

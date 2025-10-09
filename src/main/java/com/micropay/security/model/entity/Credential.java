@@ -1,14 +1,17 @@
 package com.micropay.security.model.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Data
+@Getter
 @Entity
 @Table(name = "credentials")
+@NoArgsConstructor
 public class Credential {
 
     @Id
@@ -16,57 +19,28 @@ public class Credential {
     private UUID id;
 
     @OneToOne(optional = false)
+    @Setter
     private User user;
 
     @Column(nullable = false)
+    @Setter
     private String pinHash;
 
+    @Setter
     private boolean biometricEnabled;
 
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-    public Credential() {
-    }
-    public Credential(Builder builder) {
-        this.user = builder.user;
-        this.pinHash = builder.pinHash;
-        this.biometricEnabled = builder.biometricEnabled;
-    }
-
-    public static class Builder {
-        private User user;
-        private String pinHash;
-        private boolean biometricEnabled;
-
-        public Builder user(User user) {
-            this.user = user;
-            return this;
-        }
-
-        public Builder pinHash(String pinHash) {
-            this.pinHash = pinHash;
-            return this;
-        }
-
-        public Builder withBiometricEnabled(boolean biometricEnabled) {
-            this.biometricEnabled = biometricEnabled;
-            return this;
-        }
-
-        public Credential build() {
-            return new Credential(this);
-        }
-    }
 
     @PrePersist
     public void prePersist() {
         LocalDateTime now = LocalDateTime.now();
         createdAt = now;
         updatedAt = now;
+        biometricEnabled = false;
     }
 
     @PreUpdate

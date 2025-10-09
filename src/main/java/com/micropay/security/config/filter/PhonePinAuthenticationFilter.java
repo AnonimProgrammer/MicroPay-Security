@@ -8,6 +8,8 @@ import com.micropay.security.service.security.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpMethod;
@@ -21,6 +23,8 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -31,7 +35,7 @@ public class PhonePinAuthenticationFilter extends AbstractAuthenticationProcessi
     public static final String SECURITY_FORM_PIN_KEY = "pin";
 
     private static final RequestMatcher PATH_REQUEST_MATCHER = PathPatternRequestMatcher.withDefaults()
-            .matcher(HttpMethod.POST, "/auth/login");
+            .matcher(HttpMethod.POST, "/v1/auth/login");
 
     private String phoneNumberParameter = SECURITY_FORM_PHONE_NUMBER_KEY;
 
@@ -40,15 +44,18 @@ public class PhonePinAuthenticationFilter extends AbstractAuthenticationProcessi
     private boolean postOnly = true;
 
     private final JwtService jwtService;
+    private final Validator validator;
 
-    public PhonePinAuthenticationFilter(JwtService jwtService) {
+    public PhonePinAuthenticationFilter(JwtService jwtService, Validator validator) {
         super(PATH_REQUEST_MATCHER);
         this.jwtService = jwtService;
+        this.validator = validator;
     }
 
-    public PhonePinAuthenticationFilter(AuthenticationManager authenticationManager, JwtService jwtService) {
+    public PhonePinAuthenticationFilter(AuthenticationManager authenticationManager, JwtService jwtService, Validator validator) {
         super(PATH_REQUEST_MATCHER, authenticationManager);
         this.jwtService = jwtService;
+        this.validator = validator;
     }
 
     @Override
@@ -62,6 +69,8 @@ public class PhonePinAuthenticationFilter extends AbstractAuthenticationProcessi
             ObjectMapper mapper = new ObjectMapper();
             AuthRequest authRequest = mapper.readValue(request.getInputStream(), AuthRequest.class);
 
+            validateRequest(authRequest);
+
             String phoneNumber = authRequest.phoneNumber();
             phoneNumber = (phoneNumber == null) ? "" : phoneNumber;
 
@@ -74,8 +83,8 @@ public class PhonePinAuthenticationFilter extends AbstractAuthenticationProcessi
             setDetails(request, authToken);
             return this.getAuthenticationManager().authenticate(authToken);
 
-        } catch (Exception e) {
-            throw new AuthenticationServiceException("Unable to parse authentication request", e);
+        } catch (Exception exception) {
+            throw new AuthenticationServiceException("Unable to parse authentication request", exception);
         }
     }
 
@@ -94,6 +103,18 @@ public class PhonePinAuthenticationFilter extends AbstractAuthenticationProcessi
 
     protected void setDetails(HttpServletRequest request, UsernamePasswordAuthenticationToken authRequest) {
         authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+    }
+
+    private void validateRequest(AuthRequest authRequest) {
+        Set<ConstraintViolation<AuthRequest>> violations = validator.validate(authRequest);
+
+        if (!violations.isEmpty()) {
+            String errorMessage = violations.stream()
+                    .map(ConstraintViolation::getMessage)
+                    .collect(Collectors.joining(", "));
+
+            throw new AuthenticationServiceException(errorMessage);
+        }
     }
 
 }

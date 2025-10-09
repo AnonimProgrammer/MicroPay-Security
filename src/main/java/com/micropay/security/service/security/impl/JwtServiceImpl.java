@@ -32,8 +32,9 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public AuthResponse generateTokens(User user) {
-        String accessToken = generateAccessToken(user.getId(), user.getRole().getRole());
-        String refreshToken = generateRefreshToken(user.getId());
+        RoleType role = user.getRole().getRole();
+        String accessToken = generateAccessToken(user.getId(), role);
+        String refreshToken = generateRefreshToken(user.getId(), role);
 
         return new AuthResponse(accessToken, refreshToken);
     }
@@ -48,9 +49,10 @@ public class JwtServiceImpl implements JwtService {
                 .compact();
     }
 
-    private String generateRefreshToken(UUID userId) {
+    private String generateRefreshToken(UUID userId, RoleType role) {
         return Jwts.builder()
                 .subject(userId.toString())
+                .claim("role", role.name())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + refreshTokenValidity))
                 .signWith(getKey())

@@ -6,7 +6,4 @@ public class InvalidRoleException extends RuntimeException {
         super(message);
     }
 
-    public InvalidRoleException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

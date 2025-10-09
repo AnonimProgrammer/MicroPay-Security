@@ -10,7 +10,7 @@ import lombok.Data;
 public class Role {
 
     @Id
-    private Long id;
+    private Integer id;
 
     @Enumerated(EnumType.STRING)
     @Column(unique = true, nullable = false)

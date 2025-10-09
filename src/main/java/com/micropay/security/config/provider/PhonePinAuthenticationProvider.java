@@ -1,4 +1,4 @@
-package com.micropay.security.config;
+package com.micropay.security.config.provider;
 
 import com.micropay.security.service.security.PinManagementService;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,11 @@ public class PhonePinAuthenticationProvider extends AbstractUserDetailsAuthentic
     private final PinManagementService pinManagementService;
 
     @Override
-    protected void additionalAuthenticationChecks(UserDetails userDetails,
-                                                  UsernamePasswordAuthenticationToken authentication)
-            throws AuthenticationException {
+    protected void additionalAuthenticationChecks(
+            UserDetails userDetails,
+            UsernamePasswordAuthenticationToken authentication
+    ) throws AuthenticationException {
+
         String rawPin = authentication.getCredentials().toString();
         String storedHash = userDetails.getPassword();
 

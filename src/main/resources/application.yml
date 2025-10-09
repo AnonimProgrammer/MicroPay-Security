@@ -3,29 +3,56 @@ spring:
     name: micropay-security
 
   datasource:
-    url: jdbc:postgresql://localhost:5450/security_db
-    username: user
-    password: password
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: none
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
   liquibase:
-    enabled: false
+    enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  cache:
+    type: redis
 
 server:
   port: 8150
 
 security:
   jwt:
-    secret: ed289801ff08db5d4fd8d71cd29ff018bc333b3ab1b9c1d0a261257ed28ae9b3
+    secret: ${SECURITY_JWT_SECRET}
     access-token-validity: 900000   # 15 minutes
     refresh-token-validity: 604800000 # 7 days
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, circuitbreakers, metrics, prometheus
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true

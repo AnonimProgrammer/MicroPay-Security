@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-add-unique-constraints
+      author: omarismailov
+      changes:
+        - addUniqueConstraint:
+            tableName: roles
+            columnNames: role
+            constraintName: uq_roles_role
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: phone_number
+            constraintName: uq_users_phone_number

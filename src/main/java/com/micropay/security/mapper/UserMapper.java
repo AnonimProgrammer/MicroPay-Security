@@ -1,22 +1,25 @@
 package com.micropay.security.mapper;
 
+import com.micropay.security.dto.request.RegisterRequest;
+import com.micropay.security.dto.response.UserResponse;
 import com.micropay.security.model.UserModel;
+import com.micropay.security.model.entity.Role;
 import com.micropay.security.model.entity.User;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class UserMapper implements Mapper<User, UserModel> {
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-    @Override
-    public UserModel map(User source) {
-        return new UserModel.Builder()
-                .phoneNumber(source.getPhoneNumber())
-                .email(source.getEmail())
-                .fullName(source.getFullName())
-                .status(source.getStatus())
-                .createdAt(source.getCreatedAt())
-                .updatedAt(source.getUpdatedAt())
-                .build();
-    }
+    @Mapping(source = "entity.role.role", target = "role")
+    UserModel toModel(User entity);
+
+    @Mapping(source = "request.phoneNumber", target = "phoneNumber")
+    @Mapping(source = "request.fullName", target = "fullName")
+    @Mapping(source = "request.email", target = "email")
+    @Mapping(source = "role", target = "role")
+    User buildEntity(RegisterRequest request, Role role);
+
+    UserResponse toResponse(User user);
 
 }

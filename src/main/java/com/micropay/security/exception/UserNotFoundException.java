@@ -14,7 +14,4 @@ public class UserNotFoundException extends UsernameNotFoundException {
         super(message);
     }
 
-    public UserNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

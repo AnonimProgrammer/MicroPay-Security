@@ -8,11 +8,4 @@ public class CredentialNotFoundException extends RuntimeException {
         super("Credentials not found for userId: " + userId);
     }
 
-    public CredentialNotFoundException(String message) {
-        super(message);
-    }
-
-    public CredentialNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }
