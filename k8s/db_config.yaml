@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: db-config
-data:
-  SPRING_DATASOURCE_URL: "jdbc:postgresql://micropay-db:5432"
-  SPRING_DATASOURCE_USERNAME: "user"
