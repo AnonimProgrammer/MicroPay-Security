@@ -2,10 +2,7 @@ package com.micropay.security.service.security.impl;
 
 import com.micropay.security.dto.request.RegisterRequest;
 import com.micropay.security.dto.response.AuthResponse;
-import com.micropay.security.exception.CredentialNotFoundException;
-import com.micropay.security.exception.InvalidRoleException;
-import com.micropay.security.exception.NotActiveUserException;
-import com.micropay.security.exception.UserNotFoundException;
+import com.micropay.security.exception.*;
 import com.micropay.security.mapper.CredentialMapper;
 import com.micropay.security.mapper.UserMapper;
 import com.micropay.security.model.CustomUserDetails;
@@ -48,7 +45,10 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
     @Override
     @Transactional
     public AuthResponse registerUser(RegisterRequest registerRequest) {
-        log.info("Registering user with phone number: {}", registerRequest.phoneNumber());
+        final String phoneNumber = registerRequest.phoneNumber();
+
+        log.info("Registering user with phone number: {}", phoneNumber);
+        checkAccountExistence(phoneNumber);
 
         Role role = roleRepository.findById(1)
                 .orElseThrow(() -> new InvalidRoleException("Default USER role not found."));
@@ -62,6 +62,14 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
 
         cacheService.evictAll("users");
         return jwtService.generateTokens(user);
+    }
+
+    private void checkAccountExistence(String phoneNumber) {
+        userRepository.findByPhoneNumber(phoneNumber).ifPresent(user -> {
+                    throw new DuplicateObjectException(
+                            "Account with phone number: " + phoneNumber + " already exists."
+                    );
+                });
     }
 
     @Override

@@ -16,6 +16,7 @@ spec:
       containers:
         - name: security-service
           image: docker.io/dockerforomar/micropay-security:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8150
           envFrom:

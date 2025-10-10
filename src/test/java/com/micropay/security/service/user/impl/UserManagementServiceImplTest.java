@@ -114,6 +114,8 @@ class UserManagementServiceImplTest {
 
         assertEquals(UserStatus.ACTIVE, user.getStatus());
         verify(walletServiceAdapter).activateWallet(USER_ID);
+        verify(cacheService).evict("userData", USER_ID.toString());
+        verify(cacheService).evictAll("users");
         verify(userRepository).save(user);
     }
 
@@ -125,6 +127,8 @@ class UserManagementServiceImplTest {
 
         assertEquals(UserStatus.SUSPENDED, user.getStatus());
         verify(walletServiceAdapter).deactivateWallet(USER_ID);
+        verify(cacheService).evict("userData", USER_ID.toString());
+        verify(cacheService).evictAll("users");
         verify(userRepository).save(user);
     }
 

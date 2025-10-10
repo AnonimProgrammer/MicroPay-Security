@@ -82,6 +82,8 @@ class UserAuthenticationServiceImplTest {
 
     @Test
     void registerUser_ShouldRegisterSuccessfully() {
+        when(userRepository.findByPhoneNumber(registerRequest.phoneNumber())).thenReturn(Optional.empty());
+
         when(roleRepository.findById(1)).thenReturn(Optional.of(role));
         when(userMapper.buildEntity(registerRequest, role)).thenReturn(user);
         when(pinManagementService.hashPin("1234")).thenReturn("hashed");
@@ -99,8 +101,24 @@ class UserAuthenticationServiceImplTest {
 
     @Test
     void registerUser_ShouldThrow_WhenRoleNotFound() {
+        when(userRepository.findByPhoneNumber(registerRequest.phoneNumber())).thenReturn(Optional.empty());
         when(roleRepository.findById(1)).thenReturn(Optional.empty());
         assertThrows(InvalidRoleException.class, () -> service.registerUser(registerRequest));
+        verify(userRepository, never()).save(any());
+        verify(credentialRepository, never()).save(any());
+        verify(cacheService, never()).evictAll(anyString());
+    }
+
+    @Test
+    void registerUser_ShouldThrow_WhenUserAlreadyExists() {
+        when(userRepository.findByPhoneNumber(registerRequest.phoneNumber())).thenReturn(Optional.of(user));
+
+        assertThrows(DuplicateObjectException.class, () -> service.registerUser(registerRequest));
+
+        verify(userRepository, never()).save(any());
+        verify(credentialRepository, never()).save(any());
+        verify(cacheService, never()).evictAll(anyString());
+        verify(jwtService, never()).generateTokens(any());
     }
 
     @Test

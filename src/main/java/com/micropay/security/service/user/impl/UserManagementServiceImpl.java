@@ -18,12 +18,14 @@ import com.micropay.security.service.cache.CacheService;
 import com.micropay.security.service.user.UserManagementService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserManagementServiceImpl implements UserManagementService {
@@ -37,6 +39,8 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     public UserResponse getUserData(UUID userId) {
+        log.info("[UserManagementService] - Fetching user data for userId: {}", userId);
+
         String cacheKey = userId.toString();
         return cacheService.getOrPut(
                 "userData", cacheKey, new TypeReference<UserResponse>() {}, () -> {
@@ -50,6 +54,8 @@ public class UserManagementServiceImpl implements UserManagementService {
     @Override
     @Transactional
     public UserResponse updateUserData(UUID userId, UpdateUserRequest updateUserRequest) {
+        log.info("[UserManagementService] - Updating user data for userId: {}", userId);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
@@ -59,47 +65,55 @@ public class UserManagementServiceImpl implements UserManagementService {
         if (updateUserRequest.email() != null) {
             user.setEmail(updateUserRequest.email());
         }
+        User savedUser = userRepository.save(user);
         evictCaches(userId);
-        return userMapper.toResponse(userRepository.save(user));
+
+        return userMapper.toResponse(savedUser);
     }
 
     @Override
     @Transactional
     public void blockUser(UUID userId) {
+        log.info("[UserManagementService] - Blocking user with ID: {}", userId);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         user.setStatus(UserStatus.BLOCKED);
         walletServiceAdapter.closeWallet(userId);
 
-        evictCaches(userId);
         userRepository.save(user);
+        evictCaches(userId);
     }
 
     @Override
     @Transactional
     public void activateUser(UUID userId) {
+        log.info("[UserManagementService] - Activating user with ID: {}", userId);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         user.setStatus(UserStatus.ACTIVE);
         walletServiceAdapter.activateWallet(userId);
 
-        evictCaches(userId);
         userRepository.save(user);
+        evictCaches(userId);
     }
 
     @Override
     @Transactional
     public void suspendUser(UUID userId) {
+        log.info("[UserManagementService] - Suspending user with ID: {}", userId);
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         user.setStatus(UserStatus.SUSPENDED);
         walletServiceAdapter.deactivateWallet(userId);
 
-        evictCaches(userId);
         userRepository.save(user);
+        evictCaches(userId);
     }
 
     private void evictCaches(UUID userId) {
@@ -109,6 +123,8 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     public UserWalletResponse getUserWalletId(UserWalletRequest userWalletRequest) {
+        log.info("[UserManagementService] - Fetching walletId for phoneNumber: {}", userWalletRequest.phoneNumber());
+
         User user = userRepository.findByPhoneNumber(userWalletRequest.phoneNumber())
                 .orElseThrow(() -> new UserNotFoundException("User is not using MicroPay yet."));
 
