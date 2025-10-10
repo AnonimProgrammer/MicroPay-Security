@@ -76,8 +76,6 @@ jobs:
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/db_secret.yaml
-          kubectl apply -f k8s/redis_deployment.yaml
-          kubectl apply -f k8s/redis_service.yaml
           kubectl apply -f k8s/db_deployment.yaml
           kubectl apply -f k8s/security_config.yaml
 

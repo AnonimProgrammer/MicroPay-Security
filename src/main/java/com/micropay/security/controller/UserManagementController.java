@@ -31,7 +31,7 @@ public class UserManagementController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping
+    @PatchMapping
     public ResponseEntity<UserResponse> updateUserData(
             @RequestHeader ("X-User-Id") UUID userId,
             @Valid @RequestBody UpdateUserRequest updateUserRequest
