@@ -20,8 +20,8 @@ spec:
             - containerPort: 8150
           envFrom:
             - configMapRef:
-                name: security-config
-            - secretRef:
+                name: db-config
+            - configMapRef:
                 name: db-secret
           env:
             - name: SECURITY_JWT_SECRET

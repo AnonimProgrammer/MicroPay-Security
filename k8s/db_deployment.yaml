@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: micropay-db
-
 spec:
   replicas: 1
   selector:
@@ -19,15 +18,25 @@ spec:
           ports:
             - containerPort: 5432
           env:
-            - name: POSTGRES_DB
-              value: security_db
             - name: POSTGRES_USER
               valueFrom:
                 configMapKeyRef:
-                  name: security-config
+                  name: db-config
                   key: SPRING_DATASOURCE_USERNAME
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: db-secret
                   key: SPRING_DATASOURCE_PASSWORD
+          command: [ "bash", "-c", "--" ]
+          args:
+            - |
+              set -e
+              docker-entrypoint.sh postgres &
+              sleep 5
+              psql -U "$POSTGRES_USER" -c "CREATE DATABASE security_db;"
+              psql -U "$POSTGRES_USER" -c "CREATE DATABASE payment_db;"
+              psql -U "$POSTGRES_USER" -c "CREATE DATABASE wallet_db;"
+              psql -U "$POSTGRES_USER" -c "CREATE DATABASE transaction_db;"
+              psql -U "$POSTGRES_USER" -c "CREATE DATABASE notification_db;"
+              wait
