@@ -20,7 +20,7 @@ spec:
             - containerPort: 8150
           envFrom:
             - configMapRef:
-                name: db-config
+                name: db-config-security
           env:
             - name: SECURITY_JWT_SECRET
               valueFrom:
@@ -32,6 +32,11 @@ spec:
                secretKeyRef:
                  name: db-secret
                  key: SPRING_DATASOURCE_PASSWORD
+            - name: DATASOURCE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: SPRING_DATASOURCE_USER
           readinessProbe:
             httpGet:
               path: /actuator/health

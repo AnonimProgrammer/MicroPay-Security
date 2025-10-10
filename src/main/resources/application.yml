@@ -3,8 +3,8 @@ spring:
     name: micropay-security
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL}/security_db
-    username: ${SPRING_DATASOURCE_USERNAME}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${DATASOURCE_USER}
     password: ${DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
