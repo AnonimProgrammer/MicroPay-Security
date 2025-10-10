@@ -1,9 +1,8 @@
 package com.micropay.security.exception.handler;
 
-import com.micropay.security.exception.CredentialNotFoundException;
+import com.micropay.security.exception.DuplicateObjectException;
 import com.micropay.security.exception.NotActiveUserException;
 import com.micropay.security.exception.UserNotFoundException;
-import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.micropay.security.dto.response.ErrorResponse;
@@ -25,6 +24,16 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
+
+    @ExceptionHandler(DuplicateObjectException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateObjectException(DuplicateObjectException exception) {
+        ErrorResponse body = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                exception.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
