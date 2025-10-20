@@ -1,12 +1,10 @@
 package com.micropay.security.exception.handler;
 
-import com.micropay.security.exception.DuplicateObjectException;
-import com.micropay.security.exception.InvalidTokenException;
-import com.micropay.security.exception.NotActiveUserException;
-import com.micropay.security.exception.UserNotFoundException;
+import com.micropay.security.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.micropay.security.dto.response.ErrorResponse;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -70,6 +68,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidTokenException.class)
     public ResponseEntity<ErrorResponse> handleInvalidTokenException(InvalidTokenException exception) {
+        ErrorResponse body = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                exception.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException exception) {
         ErrorResponse body = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
                 exception.getMessage(),

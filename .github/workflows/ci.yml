@@ -83,7 +83,7 @@ jobs:
       - name: Deploy to GKE
         run: |
           kubectl set image deployment/security-service \
-          security-service=docker.io/dockerforomar/micropay-security:latest
+          security-service=docker.io/dockerforomar/micropay-security:${{ github.sha }}
           kubectl rollout status deployment/security-service
 
 
