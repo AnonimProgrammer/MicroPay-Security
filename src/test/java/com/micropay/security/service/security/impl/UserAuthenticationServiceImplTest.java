@@ -6,6 +6,7 @@ import com.micropay.security.exception.*;
 import com.micropay.security.mapper.CredentialMapper;
 import com.micropay.security.mapper.UserMapper;
 import com.micropay.security.model.CustomUserDetails;
+import com.micropay.security.model.RoleType;
 import com.micropay.security.model.UserStatus;
 import com.micropay.security.model.entity.Credential;
 import com.micropay.security.model.entity.Role;
@@ -42,7 +43,8 @@ class UserAuthenticationServiceImplTest {
     private User user;
     private Role role;
     private Credential credential;
-    private final UUID USER_ID = UUID.randomUUID();
+    private final static UUID USER_ID = UUID.randomUUID();
+    private final static String REFRESH_TOKEN = "sample-refresh-token";
 
     @BeforeEach
     void setUp() {
@@ -77,6 +79,8 @@ class UserAuthenticationServiceImplTest {
         }
         user.setStatus(UserStatus.ACTIVE);
         role = new Role();
+        role.setRole(RoleType.USER);
+        user.setRole(role);
         credential = new Credential();
     }
 
@@ -160,30 +164,89 @@ class UserAuthenticationServiceImplTest {
     }
 
     @Test
-    void refreshAccessToken_ShouldReturnNewTokens_WhenUserActive() {
-        user.setStatus(UserStatus.ACTIVE);
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
-        when(jwtService.generateTokens(user)).thenReturn(
-                new AuthResponse("newAccess", "newRefresh")
-        );
+    void shouldRefreshAccessTokenSuccessfully() {
+        UUID userId = user.getId();
 
-        AuthResponse response = service.refreshAccessToken(USER_ID);
+        doNothing().when(cacheService).checkAndBlacklist(REFRESH_TOKEN);
+        doNothing().when(jwtService).validateToken(REFRESH_TOKEN);
+        when(jwtService.extractUserId(REFRESH_TOKEN)).thenReturn(userId.toString());
+        when(jwtService.extractRole(REFRESH_TOKEN)).thenReturn("USER");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        assertEquals("newAccess", response.accessToken());
+        AuthResponse expectedResponse = new AuthResponse("newAccessToken", "newREFRESH_TOKEN");
+        when(jwtService.generateTokens(user)).thenReturn(expectedResponse);
+
+        AuthResponse actual = service.refreshAccessToken(REFRESH_TOKEN);
+
+        assertEquals(expectedResponse, actual);
+        verify(cacheService).checkAndBlacklist(REFRESH_TOKEN);
+        verify(jwtService).validateToken(REFRESH_TOKEN);
+        verify(jwtService).extractUserId(REFRESH_TOKEN);
+        verify(jwtService).extractRole(REFRESH_TOKEN);
+        verify(userRepository).findById(userId);
         verify(jwtService).generateTokens(user);
     }
 
     @Test
-    void refreshAccessToken_ShouldThrow_WhenUserNotFound() {
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.empty());
-        assertThrows(UserNotFoundException.class, () -> service.refreshAccessToken(USER_ID));
+    void shouldThrowInvalidTokenExceptionWhenREFRESH_TOKENBlacklisted() {
+        doThrow(new InvalidTokenException("Token blacklisted"))
+                .when(cacheService).checkAndBlacklist(REFRESH_TOKEN);
+
+        InvalidTokenException exception = assertThrows(
+                InvalidTokenException.class, () -> service.refreshAccessToken(REFRESH_TOKEN)
+        );
+        assertEquals("Token blacklisted", exception.getMessage());
+        verify(cacheService).checkAndBlacklist(REFRESH_TOKEN);
+        verifyNoMoreInteractions(jwtService, userRepository);
     }
 
     @Test
-    void refreshAccessToken_ShouldThrow_WhenUserNotActive() {
-        user.setStatus(UserStatus.BLOCKED);
-        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+    void shouldThrowInvalidTokenExceptionWhenRoleMismatch() {
+        UUID userId = user.getId();
 
-        assertThrows(NotActiveUserException.class, () -> service.refreshAccessToken(USER_ID));
+        doNothing().when(cacheService).checkAndBlacklist(REFRESH_TOKEN);
+        doNothing().when(jwtService).validateToken(REFRESH_TOKEN);
+        when(jwtService.extractUserId(REFRESH_TOKEN)).thenReturn(userId.toString());
+        when(jwtService.extractRole(REFRESH_TOKEN)).thenReturn("ADMIN");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        InvalidTokenException ex = assertThrows(
+                InvalidTokenException.class, () -> service.refreshAccessToken(REFRESH_TOKEN)
+        );
+        assertEquals("Invalid refresh token.", ex.getMessage());
     }
+
+    @Test
+    void shouldThrowNotActiveUserExceptionWhenUserNotActive() {
+        UUID userId = user.getId();
+        user.setStatus(UserStatus.BLOCKED);
+
+        doNothing().when(cacheService).checkAndBlacklist(REFRESH_TOKEN);
+        doNothing().when(jwtService).validateToken(REFRESH_TOKEN);
+        when(jwtService.extractUserId(REFRESH_TOKEN)).thenReturn(userId.toString());
+        when(jwtService.extractRole(REFRESH_TOKEN)).thenReturn("USER");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        NotActiveUserException ex = assertThrows(
+                NotActiveUserException.class, () -> service.refreshAccessToken(REFRESH_TOKEN)
+        );
+        assertTrue(ex.getMessage().contains(userId.toString()));
+    }
+
+    @Test
+    void shouldThrowUserNotFoundExceptionWhenUserDoesNotExist() {
+        UUID userId = UUID.randomUUID();
+
+        doNothing().when(cacheService).checkAndBlacklist(REFRESH_TOKEN);
+        doNothing().when(jwtService).validateToken(REFRESH_TOKEN);
+        when(jwtService.extractUserId(REFRESH_TOKEN)).thenReturn(userId.toString());
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        UserNotFoundException ex = assertThrows(
+                UserNotFoundException.class, () -> service.refreshAccessToken(REFRESH_TOKEN)
+        );
+
+        assertEquals("User not found with id: " + userId, ex.getMessage());
+    }
+
 }

@@ -7,4 +7,10 @@ public interface JwtService {
 
     AuthResponse generateTokens(User user);
 
+    void validateToken(String token);
+
+    String extractUserId(String token);
+
+    String extractRole(String token);
+
 }

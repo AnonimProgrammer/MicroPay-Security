@@ -2,6 +2,7 @@ package com.micropay.security.service.cache.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.micropay.security.exception.InvalidTokenException;
 import com.micropay.security.service.cache.CacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,30 @@ public class CacheServiceImpl implements CacheService {
         cache.put(key, value);
         log.info("Value cached for '{}' with key '{}'", cacheName, key);
         return value;
+    }
+
+    private Cache getCache() {
+        Cache cache = cacheManager.getCache("blacklistedTokens");
+        if (cache == null) {
+            log.warn("Cache '{}' not found. ", "blacklistedTokens");
+        }
+        return cache;
+    }
+
+    @Override
+    public void checkAndBlacklist(String refreshToken) {
+        Cache cache = getCache();
+        String key = generateKey(refreshToken);
+
+        if (cache.get(key) != null) {
+            throw new InvalidTokenException("Token blacklisted.");
+        }
+        cache.put(key, true);
+        log.info("Token blacklisted: {} ", refreshToken);
+    }
+
+    private String generateKey(String token) {
+        return "blacklist:" + token;
     }
 
     @Override

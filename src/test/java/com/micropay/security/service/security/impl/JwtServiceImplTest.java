@@ -75,6 +75,52 @@ class JwtServiceImplTest {
         assertTrue(refreshClaims.getExpiration().after(accessClaims.getExpiration()));
     }
 
+    @Test
+    void validateToken_ShouldNotThrowForValidToken() {
+        AuthResponse response = jwtService.generateTokens(user);
+
+        assertDoesNotThrow(() -> jwtService.validateToken(response.accessToken()));
+    }
+
+    @Test
+    void validateToken_ShouldThrowForInvalidToken() {
+        String invalidToken = "invalid.token.value";
+
+        assertThrows(com.micropay.security.exception.InvalidTokenException.class,
+                () -> jwtService.validateToken(invalidToken));
+    }
+
+    @Test
+    void extractUserId_ShouldReturnCorrectUserId() {
+        AuthResponse response = jwtService.generateTokens(user);
+        String extractedId = jwtService.extractUserId(response.accessToken());
+
+        assertEquals(user.getId().toString(), extractedId);
+    }
+
+    @Test
+    void extractRole_ShouldReturnCorrectRole() {
+        AuthResponse response = jwtService.generateTokens(user);
+        String extractedRole = jwtService.extractRole(response.accessToken());
+
+        assertEquals(user.getRole().getRole().name(), extractedRole);
+    }
+
+    @Test
+    void validateToken_ShouldThrowForExpiredToken() {
+        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET));
+        String expiredToken = Jwts.builder()
+                .subject(user.getId().toString())
+                .claim("role", user.getRole().getRole().name())
+                .issuedAt(new Date(System.currentTimeMillis() - 10_000))
+                .expiration(new Date(System.currentTimeMillis() - 5_000))
+                .signWith(key)
+                .compact();
+
+        assertThrows(com.micropay.security.exception.InvalidTokenException.class,
+                () -> jwtService.validateToken(expiredToken));
+    }
+
     private Claims extractClaims(String token) {
         SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET));
         return Jwts.parser()

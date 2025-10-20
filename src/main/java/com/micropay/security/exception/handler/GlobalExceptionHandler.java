@@ -1,6 +1,7 @@
 package com.micropay.security.exception.handler;
 
 import com.micropay.security.exception.DuplicateObjectException;
+import com.micropay.security.exception.InvalidTokenException;
 import com.micropay.security.exception.NotActiveUserException;
 import com.micropay.security.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -53,7 +54,7 @@ public class GlobalExceptionHandler {
                 "User is blocked or suspended.",
                 LocalDateTime.now()
         );
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -65,6 +66,16 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidTokenException(InvalidTokenException exception) {
+        ErrorResponse body = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                exception.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
     }
 
 }

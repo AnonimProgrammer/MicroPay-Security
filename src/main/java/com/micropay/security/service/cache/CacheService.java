@@ -8,6 +8,8 @@ public interface CacheService {
 
     <T> T getOrPut(String cacheName, String key, TypeReference<T> type, Supplier<T> supplier);
 
+    void checkAndBlacklist(String refreshToken);
+
     void evictAll(String cacheName);
 
     void evict(String cacheName, String key);

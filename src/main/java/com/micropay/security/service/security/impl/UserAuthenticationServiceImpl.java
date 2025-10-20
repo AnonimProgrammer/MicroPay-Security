@@ -87,14 +87,28 @@ public class UserAuthenticationServiceImpl implements UserAuthenticationService 
     }
 
     @Override
-    public AuthResponse refreshAccessToken(UUID userId) {
-        log.info("Refreshing access token for user: {}", userId);
+    public AuthResponse refreshAccessToken(String refreshToken) {
+        cacheService.checkAndBlacklist(refreshToken);
+        log.info("Refreshing access token.");
 
+        jwtService.validateToken(refreshToken);
+
+        UUID userId = UUID.fromString(jwtService.extractUserId(refreshToken));
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
+        String role = jwtService.extractRole(refreshToken);
+        validateRole(role, user);
+
         isActive(user);
         return jwtService.generateTokens(user);
+    }
+
+    private void validateRole(String role, User user) {
+        String userRole = user.getRole().getRole().toString();
+        if (!userRole.equals(role)) {
+            throw new InvalidTokenException("Invalid refresh token.");
+        }
     }
 
     private void isActive(User user) {

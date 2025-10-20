@@ -13,12 +13,14 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 @EnableCaching
 @Configuration
 public class SystemConfiguration {
 
-    public final static String WALLET_SERVICE_URL = "http://localhost:8110/v1/internal/wallets";
+    public final static String WALLET_SERVICE_URL = "http://wallet-service:8110/v1/internal/wallets";
 
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
@@ -27,13 +29,18 @@ public class SystemConfiguration {
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+        RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofSeconds(60))
                 .serializeValuesWith(
                         RedisSerializationContext.SerializationPair.fromSerializer(serializer)
                 );
+        Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
+        cacheConfigurations.put("blacklistedTokens",
+                defaultConfig.entryTtl(Duration.ofDays(7))
+        );
         return RedisCacheManager.builder(connectionFactory)
-                .cacheDefaults(config)
+                .cacheDefaults(defaultConfig)
+                .withInitialCacheConfigurations(cacheConfigurations)
                 .build();
     }
 }
