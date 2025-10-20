@@ -27,7 +27,7 @@ public class PinManagementServiceImpl implements PinManagementService {
     @Override
     public void checkPinMatching(String rawPin, String hashedPin) {
         if (!passwordEncoder.matches(rawPin, hashedPin)) {
-            throw new BadCredentialsException("Passwords do not match.");
+            throw new BadCredentialsException("Invalid PIN.");
         }
     }
 
