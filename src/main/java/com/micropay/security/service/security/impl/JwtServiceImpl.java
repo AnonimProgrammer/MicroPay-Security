@@ -1,9 +1,11 @@
 package com.micropay.security.service.security.impl;
 
 import com.micropay.security.dto.response.AuthResponse;
+import com.micropay.security.exception.InvalidTokenException;
 import com.micropay.security.model.RoleType;
 import com.micropay.security.model.entity.User;
 import com.micropay.security.service.security.JwtService;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -37,6 +39,40 @@ public class JwtServiceImpl implements JwtService {
         String refreshToken = generateRefreshToken(user.getId(), role);
 
         return new AuthResponse(accessToken, refreshToken);
+    }
+
+    @Override
+    public void validateToken(String token) {
+        try {
+            Jwts.parser().verifyWith(generateSecretKey(secretKey)).build().parseSignedClaims(token);
+        } catch (JwtException exception) {
+            throw new InvalidTokenException();
+        }
+    }
+
+    @Override
+    public String extractUserId(String token) {
+        return Jwts.parser()
+                .verifyWith(generateSecretKey(secretKey))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+    }
+
+    @Override
+    public String extractRole(String token) {
+        return Jwts.parser()
+                .verifyWith(generateSecretKey(secretKey))
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
+    }
+
+    private SecretKey generateSecretKey(String secretKey) {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     private String generateAccessToken(UUID userId, RoleType role) {
