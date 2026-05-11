@@ -1,4 +1,4 @@
-# 🔐 MicroPay - Security Service
+# MicroPay - Security Service
 
 **MicroPay-Security** is the **security** microservice of the MicroPay — a distributed, event-driven **Wallet Application**.
 
@@ -6,7 +6,7 @@ This service manages **user identity**, **role-based access control**, and **tok
 
 ---
 
-## 🧩 System Context
+## System Context
 
 **MicroPay** consists of six independent microservices:
 
@@ -21,7 +21,7 @@ This service manages **user identity**, **role-based access control**, and **tok
 
 ---
 
-## 🔑 Core Responsibilities
+## Core Responsibilities
 
 The **Security Service** is responsible for:
 
@@ -33,7 +33,7 @@ The **Security Service** is responsible for:
 
 ---
 
-## 🧠 Authentication Design
+## Authentication Design
 
 Authentication in MicroPay is designed around **simplicity and security**.
 
@@ -46,7 +46,7 @@ These are implemented directly from **low-level Spring Security interfaces**, en
 
 ---
 
-## 🔒 Token Management
+## Token Management
 
 Upon successful registration or login, users receive **two JWT tokens**:
 
@@ -76,13 +76,13 @@ Only developers or the admin team can modify roles, ensuring strict control.
 
 ---
 
-## 🚀 Deployment
+## Deployment
 All MicroPay services are:
 - Built with Gradle
 - Containerized using Docker
 - Deployed and tested in Google Cloud Platform (GCP)
 - Designed for Kubernetes orchestration
-## 🧰 Tech Stack
+## Tech Stack
 - Java 21
 - Spring Boot & Spring Security
 - PostgreSQL
@@ -95,7 +95,7 @@ All MicroPay services are:
 ---
 
 <p align="center">
-  <b>Omar Ismailov</b><br>
+  <b>Omar Ismayilov</b><br>
   <i>Software Engineer • Backend & System Design Enthusiast</i><br>
   Building reliable systems with simplicity and architecture in mind.
 </p>
